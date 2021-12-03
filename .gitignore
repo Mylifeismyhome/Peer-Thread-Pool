@@ -38,3 +38,5 @@ x86/
 
 *.vcxproj.user
 *.vcxproj.filters
+
+.vs/
