@@ -4,23 +4,69 @@
 
 Net::PeerPool::peerInfo_t::peerInfo_t()
 {
-	this->peer = nullptr;
-	this->fncWork = nullptr;
-	this->fncCallbackOnDelete = nullptr;
+	this->SetPeer(nullptr);
+	this->SetWorker(nullptr);
+	this->SetCallbackOnDelete(nullptr);
 }
 
 Net::PeerPool::peerInfo_t::peerInfo_t(void* peer)
 {
-	this->peer = peer;
-	this->fncWork = nullptr;
-	this->fncCallbackOnDelete = nullptr;
+	this->SetPeer(peer);
+	this->SetWorker(nullptr);
+	this->SetCallbackOnDelete(nullptr);
 }
 
 Net::PeerPool::peerInfo_t::peerInfo_t(void* peer, WorkStatus_t(*fncWork)(void* peer))
 {
+	this->SetPeer(peer);
+	this->SetWorker(fncWork);
+	this->SetCallbackOnDelete(nullptr);
+}
+
+Net::PeerPool::peerInfo_t::peerInfo_t(void* peer, void (*fncCallbackOnDelete)(void* peer))
+{
+	this->SetPeer(peer);
+	this->SetWorker(nullptr);
+	this->SetCallbackOnDelete(fncCallbackOnDelete);
+}
+
+Net::PeerPool::peerInfo_t::peerInfo_t(void* peer, WorkStatus_t(*fncWork)(void* peer), void (*fncCallbackOnDelete)(void* peer))
+{
+	this->SetPeer(peer);
+	this->SetWorker(fncWork);
+	this->SetCallbackOnDelete(fncCallbackOnDelete);
+}
+
+void Net::PeerPool::peerInfo_t::SetPeer(void* peer)
+{
 	this->peer = peer;
+}
+
+void* Net::PeerPool::peerInfo_t::GetPeer()
+{
+	return this->peer;
+}
+
+void Net::PeerPool::peerInfo_t::SetWorker(WorkStatus_t(*fncWork)(void* peer))
+{
 	this->fncWork = fncWork;
-	this->fncCallbackOnDelete = nullptr;
+}
+
+void* Net::PeerPool::peerInfo_t::GetWorker()
+{
+	if (this->fncWork) return this->fncWork;
+	return nullptr;
+}
+
+void Net::PeerPool::peerInfo_t::SetCallbackOnDelete(void (*fncCallbackOnDelete)(void* peer))
+{
+	this->fncCallbackOnDelete = fncCallbackOnDelete;
+}
+
+void* Net::PeerPool::peerInfo_t::GetCallbackOnDelete()
+{
+	if (this->fncCallbackOnDelete) return this->fncCallbackOnDelete;
+	return nullptr;
 }
 
 Net::PeerPool::PeerPool_t::PeerPool_t()
@@ -29,7 +75,7 @@ Net::PeerPool::PeerPool_t::PeerPool_t()
 	peer_threadpool_mutex = new std::mutex();
 
 	fncSleep = nullptr;
-	sleep_time = 100;
+	ms_sleep_time = 100;
 	max_peers = DEFAULT_MAX_PEER_COUNT;
 }
 
@@ -48,9 +94,9 @@ Net::PeerPool::PeerPool_t::~PeerPool_t()
 	}
 }
 
-void Net::PeerPool::PeerPool_t::set_sleep_time(DWORD sleep_time)
+void Net::PeerPool::PeerPool_t::set_sleep_time(DWORD ms_sleep_time)
 {
-	this->sleep_time = sleep_time;
+	this->ms_sleep_time = ms_sleep_time;
 }
 
 void Net::PeerPool::PeerPool_t::set_sleep_function(void (*fncSleep)(DWORD time))
@@ -102,16 +148,21 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 			
 			// Automaticly set to stop if no worker function is set
 			WorkStatus_t ret = WorkStatus_t::STOP;
-			if (peer->fncWork)
+
+			auto fncWorkPointer = peer->GetWorker();
+			if (fncWorkPointer)
 			{
-				ret = (*peer->fncWork)(peer->peer);
+				auto fncWork = reinterpret_cast<WorkStatus_t(*)(void* peer)>(fncWorkPointer);
+				ret = (*fncWork)(peer->GetPeer());
 			}
 
 			if (ret == WorkStatus_t::STOP)
 			{
-				if (peer->fncCallbackOnDelete)
+				auto fncCallbackOnDeletePointer = peer->GetCallbackOnDelete();
+				if (fncCallbackOnDeletePointer)
 				{
-					(*peer->fncCallbackOnDelete)();
+					auto fncCallbackOnDelete = reinterpret_cast<void (*)(void* peer)>(fncCallbackOnDeletePointer);
+					(*fncCallbackOnDelete)(peer->GetPeer());
 				}
 
 				delete peer;
@@ -163,11 +214,11 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 
 		if (fncSleep)
 		{
-			(*fncSleep)(sleep_time);
+			(*fncSleep)(ms_sleep_time);
 		}
 		else
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+			std::this_thread::sleep_for(std::chrono::milliseconds(ms_sleep_time));
 		}
 	}
 }

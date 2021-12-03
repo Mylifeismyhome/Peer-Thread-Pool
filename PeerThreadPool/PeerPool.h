@@ -17,15 +17,27 @@ namespace Net
 			STOP = 1
 		};
 
-		struct peerInfo_t
+		class peerInfo_t
 		{
 			void* peer;
 			WorkStatus_t(*fncWork)(void* peer);
-			void (*fncCallbackOnDelete)();
+			void (*fncCallbackOnDelete)(void* peer);
 
+		public:
 			peerInfo_t();
 			peerInfo_t(void* peer);
 			peerInfo_t(void* peer, WorkStatus_t(*fncWork)(void* peer));
+			peerInfo_t(void* peer, void (*fncCallbackOnDelete)(void* peer));
+			peerInfo_t(void* peer, WorkStatus_t(*fncWork)(void* peer), void (*fncCallbackOnDelete)(void* peer));
+
+			void SetPeer(void* peer);
+			void* GetPeer();
+
+			void SetWorker(WorkStatus_t(*fncWork)(void* peer));
+			void* GetWorker();
+
+			void SetCallbackOnDelete(void (*fncCallbackOnDelete)(void* peer));
+			void* GetCallbackOnDelete();
 		};
 
 		struct peer_threadpool_t
@@ -50,7 +62,7 @@ namespace Net
 			void threadpool_add();
 			peer_threadpool_t* threadpool_get_free_slot_in_target_pool(peer_threadpool_t* from_pool);
 
-			DWORD sleep_time;
+			DWORD ms_sleep_time;
 			void (*fncSleep)(DWORD time);
 
 			size_t max_peers;
@@ -59,7 +71,7 @@ namespace Net
 			PeerPool_t();
 			~PeerPool_t();
 
-			void set_sleep_time(DWORD sleep_time);
+			void set_sleep_time(DWORD ms_sleep_time);
 			void set_sleep_function(void (*fncSleep)(DWORD time));
 			void set_max_peers(size_t max_peers);
 
