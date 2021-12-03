@@ -79,7 +79,7 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 				}
 			}
 			
-			// Automaticly set to stop work if no worker function is defined
+			// Automaticly set to stop if no worker function is defined
 			WorkStatus_t ret = WorkStatus_t::STOP;
 			if (peer->fncWork)
 			{
