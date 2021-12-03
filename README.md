@@ -7,4 +7,4 @@ Manage Multiplie Peer Connection using Thread Pools n Peers gets handled by one 
 [What it handles]
 - creates additional threads if needed
 - moves peer pointer to another thread to reduce the amount of threads
-- shutdowns threads that handle zero peers
+- shutdowns threads that handles zero peers
