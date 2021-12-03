@@ -1,7 +1,7 @@
 /* Tobias Staack */
 
 # Peer-Thread-Pool
-Manage Multiplie Peer Connection using Thread Poolin n Peers gets handled by 1 thread
+Manage Multiplie Peer Connection using Thread Pools n Peers gets handled by 1 thread
 
 [What it handles]
 - creates additional threads if needed
