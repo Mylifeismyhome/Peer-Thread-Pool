@@ -7,9 +7,6 @@
 #include <mutex>
 #include <windows.h>
 
-/* todo: make it dynamic */
-constexpr auto max_num_peers = 4; // n peers
-
 namespace Net
 {
 	namespace PeerPool
@@ -25,6 +22,13 @@ namespace Net
 			int* peer;
 			WorkStatus_t(*fncWork)(int* peer);
 			void (*fncCallbackOnDelete)();
+
+			peerInfo_t()
+			{
+				this->peer = nullptr;
+				this->fncWork = nullptr;
+				this->fncCallbackOnDelete = nullptr;
+			}
 
 			peerInfo_t(int* peer)
 			{
@@ -43,7 +47,7 @@ namespace Net
 
 		struct peer_threadpool_t
 		{
-			std::array<Net::PeerPool::peerInfo_t*, max_num_peers> vPeers;
+			std::vector<Net::PeerPool::peerInfo_t*> vPeers;
 			size_t num_peers = 0;
 		};
 
@@ -66,12 +70,15 @@ namespace Net
 			DWORD sleep_time;
 			void (*fncSleep)(DWORD time);
 
+			size_t max_peers;
+
 		public:
 			PeerPool_t();
-			PeerPool_t(DWORD sleep_time);
-			PeerPool_t(void (*fncSleep)(DWORD time));
-			PeerPool_t(void (*fncSleep)(DWORD time), DWORD sleep_time);
 			~PeerPool_t();
+
+			void set_sleep_time(DWORD sleep_time);
+			void set_sleep_function(void (*fncSleep)(DWORD time));
+			void set_max_peers(size_t max_peers);
 
 			void add(peerInfo_t);
 			void add(peerInfo_t*);

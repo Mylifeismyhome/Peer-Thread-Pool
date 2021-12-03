@@ -1,3 +1,5 @@
+#define DEFAULT_MAX_PEER_COUNT 4
+
 #include "PeerPool.h"
 
 Net::PeerPool::PeerPool_t::PeerPool_t()
@@ -7,33 +9,7 @@ Net::PeerPool::PeerPool_t::PeerPool_t()
 
 	fncSleep = nullptr;
 	sleep_time = 100;
-}
-
-Net::PeerPool::PeerPool_t::PeerPool_t(DWORD sleep_time)
-{
-	peer_mutex = new std::mutex();
-	peer_threadpool_mutex = new std::mutex();
-
-	fncSleep = nullptr;
-	this->sleep_time = sleep_time;
-}
-
-Net::PeerPool::PeerPool_t::PeerPool_t(void (*fncSleep)(DWORD time))
-{
-	peer_mutex = new std::mutex();
-	peer_threadpool_mutex = new std::mutex();
-
-	this->fncSleep = fncSleep;
-	this->sleep_time = 100;
-}
-
-Net::PeerPool::PeerPool_t::PeerPool_t(void (*fncSleep)(DWORD time), DWORD sleep_time)
-{
-	peer_mutex = new std::mutex();
-	peer_threadpool_mutex = new std::mutex();
-
-	this->fncSleep = fncSleep;
-	this->sleep_time = sleep_time;
+	max_peers = DEFAULT_MAX_PEER_COUNT;
 }
 
 Net::PeerPool::PeerPool_t::~PeerPool_t()
@@ -51,11 +27,26 @@ Net::PeerPool::PeerPool_t::~PeerPool_t()
 	}
 }
 
+void Net::PeerPool::PeerPool_t::set_sleep_time(DWORD sleep_time)
+{
+	this->sleep_time = sleep_time;
+}
+
+void Net::PeerPool::PeerPool_t::set_sleep_function(void (*fncSleep)(DWORD time))
+{
+	this->fncSleep = fncSleep;
+}
+
+void Net::PeerPool::PeerPool_t::set_max_peers(size_t max_peers)
+{
+	this->max_peers = max_peers;
+}
+
 bool Net::PeerPool::PeerPool_t::check_more_threads_needed()
 {
 	for (const auto& pool : peer_threadpool)
 	{
-		if (pool->num_peers != max_num_peers)
+		if (pool->num_peers != max_peers)
 			return false;
 	}
 
@@ -164,8 +155,9 @@ void Net::PeerPool::PeerPool_t::threadpool_add()
 {
 	peer_threadpool_t* pool = new peer_threadpool_t();
 
-	for (auto& peer : pool->vPeers)
-		peer = nullptr;
+	// add nullptr's to dynamic vector to reserve the memory
+	for(size_t i = 0; i < this->max_peers; i++)
+		pool->vPeers.push_back(nullptr);
 
 	pool->num_peers = 0;
 

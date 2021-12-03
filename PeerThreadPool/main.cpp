@@ -16,7 +16,10 @@ void DoSleep(DWORD time)
 
 int main()
 {
-	Net::PeerPool::PeerPool_t PeerPoolManager = Net::PeerPool::PeerPool_t(&DoSleep, 500);
+	Net::PeerPool::PeerPool_t PeerPoolManager = Net::PeerPool::PeerPool_t();
+	PeerPoolManager.set_sleep_time(500);
+	PeerPoolManager.set_sleep_function(&DoSleep);
+	PeerPoolManager.set_max_peers(10);
 
 	while (true)
 	{
