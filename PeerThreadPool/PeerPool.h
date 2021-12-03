@@ -19,30 +19,13 @@ namespace Net
 
 		struct peerInfo_t
 		{
-			int* peer;
-			WorkStatus_t(*fncWork)(int* peer);
+			void* peer;
+			WorkStatus_t(*fncWork)(void* peer);
 			void (*fncCallbackOnDelete)();
 
-			peerInfo_t()
-			{
-				this->peer = nullptr;
-				this->fncWork = nullptr;
-				this->fncCallbackOnDelete = nullptr;
-			}
-
-			peerInfo_t(int* peer)
-			{
-				this->peer = peer;
-				this->fncWork = nullptr;
-				this->fncCallbackOnDelete = nullptr;
-			}
-
-			peerInfo_t(int* peer, WorkStatus_t(*fncWork)(int* peer))
-			{
-				this->peer = peer;
-				this->fncWork = fncWork;
-				this->fncCallbackOnDelete = nullptr;
-			}
+			peerInfo_t();
+			peerInfo_t(void* peer);
+			peerInfo_t(void* peer, WorkStatus_t(*fncWork)(void* peer));
 		};
 
 		struct peer_threadpool_t

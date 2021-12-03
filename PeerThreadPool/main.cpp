@@ -1,8 +1,9 @@
 #include "PeerPool.h"
 
-Net::PeerPool::WorkStatus_t DoWork(int* peer)
+Net::PeerPool::WorkStatus_t DoWork(void* peer)
 {
-	std::cout << *peer << std::endl;
+	auto data = *(int*)peer;
+	std::cout << data << std::endl;
 
 	if ((rand() % (100 + 1 - 1) + 1) == 5) return Net::PeerPool::WorkStatus_t::STOP;
 

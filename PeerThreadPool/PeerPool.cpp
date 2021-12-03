@@ -2,6 +2,27 @@
 
 #include "PeerPool.h"
 
+Net::PeerPool::peerInfo_t::peerInfo_t()
+{
+	this->peer = nullptr;
+	this->fncWork = nullptr;
+	this->fncCallbackOnDelete = nullptr;
+}
+
+Net::PeerPool::peerInfo_t::peerInfo_t(void* peer)
+{
+	this->peer = peer;
+	this->fncWork = nullptr;
+	this->fncCallbackOnDelete = nullptr;
+}
+
+Net::PeerPool::peerInfo_t::peerInfo_t(void* peer, WorkStatus_t(*fncWork)(void* peer))
+{
+	this->peer = peer;
+	this->fncWork = fncWork;
+	this->fncCallbackOnDelete = nullptr;
+}
+
 Net::PeerPool::PeerPool_t::PeerPool_t()
 {
 	peer_mutex = new std::mutex();
