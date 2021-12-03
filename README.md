@@ -1,7 +1,8 @@
 /* Tobias Staack */
 
 # Peer-Thread-Pool
-Manage Multiplie Peer Connection using Thread Pools n Peers gets handled by 1 thread
+This Code-Snippet is related to Networking and can be used to avoid the princip of one thread for one socket connection.
+Manage Multiplie Peer Connection using Thread Pools n Peers gets handled by one thread.
 
 [What it handles]
 - creates additional threads if needed
