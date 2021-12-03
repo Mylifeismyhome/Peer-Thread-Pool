@@ -7,16 +7,23 @@
 #include <mutex>
 #include <windows.h>
 
+/* todo: make it dynamic */
 constexpr auto max_num_peers = 4; // n peers
 
 namespace Net
 {
 	namespace PeerPool
 	{
+		enum class WorkStatus_t
+		{
+			CONTINUE = 0,
+			STOP = 1
+		};
+
 		struct peerInfo_t
 		{
 			int* peer;
-			int (*fncWork)(int* peer);
+			WorkStatus_t(*fncWork)(int* peer);
 			void (*fncCallbackOnDelete)();
 
 			peerInfo_t(int* peer)
@@ -26,7 +33,7 @@ namespace Net
 				this->fncCallbackOnDelete = nullptr;
 			}
 
-			peerInfo_t(int* peer, int (*fncWork)(int* peer))
+			peerInfo_t(int* peer, WorkStatus_t(*fncWork)(int* peer))
 			{
 				this->peer = peer;
 				this->fncWork = fncWork;

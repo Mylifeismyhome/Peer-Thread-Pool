@@ -87,14 +87,15 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 					continue;
 				}
 			}
-
-			int ret = 1;
+			
+			// Automaticly set to stop work if no worker function is defined
+			WorkStatus_t ret = WorkStatus_t::STOP;
 			if (peer->fncWork)
 			{
 				ret = (*peer->fncWork)(peer->peer);
 			}
 
-			if (ret == 1)
+			if (ret == WorkStatus_t::STOP)
 			{
 				if (peer->fncCallbackOnDelete)
 				{
@@ -105,8 +106,7 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 				peer = nullptr;
 				pool->num_peers--;
 			}
-
-			if (ret == 0)
+			else if (ret == WorkStatus_t::CONTINUE)
 			{
 				const auto p = threadpool_get_free_slot_in_target_pool(pool);
 				if (p)

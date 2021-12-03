@@ -1,12 +1,12 @@
 #include "PeerPool.h"
 
-int DoWork(int* peer)
+Net::PeerPool::WorkStatus_t DoWork(int* peer)
 {
 	std::cout << *peer << std::endl;
 
-	if ((rand() % (100 + 1 - 1) + 1) == 5) return 1;
+	if ((rand() % (100 + 1 - 1) + 1) == 5) return Net::PeerPool::WorkStatus_t::STOP;
 
-	return 0;
+	return Net::PeerPool::WorkStatus_t::CONTINUE;
 }
 
 void DoSleep(DWORD time)
