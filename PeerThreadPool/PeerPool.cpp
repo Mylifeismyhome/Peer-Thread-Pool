@@ -176,8 +176,8 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 			}
 
 			case WorkStatus_t::CONTINUE:
-			case WorkStatus_t::FORWARD:
 			{
+				const std::lock_guard<std::mutex> lock(*peer_threadpool_mutex);
 				const auto p = threadpool_get_free_slot_in_target_pool(pool);
 				if (p)
 				{
@@ -198,13 +198,16 @@ void Net::PeerPool::PeerPool_t::threadpool_manager(peer_threadpool_t* pool)
 				break;
 			}
 
-			default:
+			// do not take a rest if we want to forward on processing worker function rapidly
+			case WorkStatus_t::FORWARD:
+			{
+				take_rest = false;
 				break;
 			}
 
-			// do not take a rest if we want to forward on processing worker function rapidly
-			if (ret == WorkStatus_t::FORWARD)
-				take_rest = false;
+			default:
+				break;
+			}
 		}
 
 		// close this thread
@@ -277,9 +280,8 @@ Net::PeerPool::peerInfo_t* Net::PeerPool::PeerPool_t::queue_pop()
 {
 	if (peer_queue.empty()) return nullptr;
 
-	auto peer = peer_queue.back();
-
 	const std::lock_guard<std::mutex> lock(*peer_mutex);
+	auto peer = peer_queue.back();
 	peer_queue.pop_back();
 	return peer;
 }
