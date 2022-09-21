@@ -1,4 +1,4 @@
-/* Tobias Staack */
+## Author: Tobias Staack
 
 # Peer-Thread-Pool
 This Code-Snippet is related to Networking and can be used to avoid the princip of one thread for one socket connection.
