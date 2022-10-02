@@ -8,3 +8,5 @@ Manage Multiplie Peer Connection using Thread Pools of *n* Peers gets handled by
 - creates additional threads if needed
 - moves peer pointer to another thread to reduce the amount of threads
 - shutdowns threads that handles zero peers
+
+## This Project is written in C++ by Tobias Staack (@MyLifeIsMyHome)
